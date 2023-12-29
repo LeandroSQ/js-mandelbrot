@@ -6,6 +6,7 @@ import { FractalWebGL } from "../renderer/webgl";
 import { FractalWebGPU } from "../renderer/webgpu";
 import { IRenderer } from "../types/irenderer";
 import { Optional } from "../types/optional";
+import { RendererType } from "../types/renderer-type";
 import { Log } from "./log";
 
 export abstract class UIUtils {
@@ -16,23 +17,13 @@ export abstract class UIUtils {
 	private static elementMaxFrameTime: Optional<HTMLElement> = null;
 	private static elementMemory: Optional<HTMLElement> = null;
 
-	private static setActiveButton(id: string) {
+	public static setActiveButton(id: string) {
 		document.querySelectorAll("footer button.active").forEach(x => x.classList.remove("active"));
 		document.getElementById(id)?.classList.add("active");
 	}
 
 	public static onRendererChange(renderer: IRenderer) {
-		if (renderer instanceof FractalWebGL) {
-			this.setActiveButton("webgl");
-		} else if (renderer instanceof FractalWebGPU) {
-			this.setActiveButton("webgpu");
-		} else if (renderer instanceof FractalCPU) {
-			this.setActiveButton("cpu");
-		} else if (renderer instanceof FractalCPUMathJS) {
-			this.setActiveButton("mathjs");
-		} else if (renderer instanceof FractalWASM) {
-			this.setActiveButton("wasm");
-		}
+		this.setActiveButton(renderer.getType());
     }
 
 	public static attachHooks(main: Main) {
@@ -49,26 +40,26 @@ export abstract class UIUtils {
     }
 
     private static onButtonClick(main: Main, button: HTMLButtonElement, event: MouseEvent) {
-		const id = button.id;
-		Log.info("UIUtils", `Button ${id} clicked`);
-        switch (id) {
-            case "webgl":
-                main.setRenderer(new FractalWebGL());
-                break;
-            case "webgpu":
-                main.setRenderer(new FractalWebGPU());
-                break;
-            case "cpu":
-                main.setRenderer(new FractalCPU());
-                break;
-            case "mathjs":
-                main.setRenderer(new FractalCPUMathJS());
-                break;
-            case "wasm":
-                main.setRenderer(new FractalWASM());
-                break;
-            default:
-                console.warn("Unknown button click", button);
+		const id = button.id as RendererType;
+		Log.debug("UIUtils", `Button ${id} clicked`);
+		switch (id) {
+			case RendererType.CPU:
+				main.setRenderer(new FractalCPU());
+				break;
+			case RendererType.CPUMathJS:
+				main.setRenderer(new FractalCPUMathJS());
+				break;
+			case RendererType.WebGL:
+				main.setRenderer(new FractalWebGL());
+				break;
+			case RendererType.WebGPU:
+				main.setRenderer(new FractalWebGPU());
+				break;
+			case RendererType.WASM:
+				main.setRenderer(new FractalWASM());
+				break;
+			default:
+				Log.warn("UIUtils", `Unknown button click ${button}`);
                 break;
         }
 	}

@@ -7,6 +7,7 @@ import { Camera } from "../types/camera";
 import { CanvasRenderingContext } from "../types/canvas-rendering-context";
 import { Log } from "../utils/log";
 import { StatsUtils } from "../utils/stats";
+import { RendererType } from "../types/renderer-type";
 
 export class FractalCPU implements IRenderer {
 
@@ -15,6 +16,10 @@ export class FractalCPU implements IRenderer {
 
 	getCanvasType(): CanvasContextType {
 		return CanvasContextType.CANVAS_2D;
+	}
+
+	getType(): RendererType {
+		return RendererType.CPU;
 	}
 
 	async setup(_: CanvasRenderingContext2D) {

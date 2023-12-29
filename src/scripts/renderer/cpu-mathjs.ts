@@ -8,6 +8,7 @@ import { Camera } from "../types/camera";
 import { CanvasRenderingContext } from "../types/canvas-rendering-context";
 import { measure, measureOverTime } from "../decorators/measure";
 import { StatsUtils } from "../utils/stats";
+import { RendererType } from "../types/renderer-type";
 
 export class FractalCPUMathJS implements IRenderer {
 
@@ -20,6 +21,10 @@ export class FractalCPUMathJS implements IRenderer {
 
 	getCanvasType(): CanvasContextType {
 		return CanvasContextType.CANVAS_2D;
+	}
+
+	getType(): RendererType {
+		return RendererType.CPUMathJS;
 	}
 
 	async setup(ctx: CanvasRenderingContext2D) {

@@ -10,6 +10,7 @@ import type { __AdaptedExports as WASMModule } from "../../assembly/module.d.ts"
 import { Camera } from '../types/camera';
 import { CanvasRenderingContext } from '../types/canvas-rendering-context';
 import { StatsUtils } from '../utils/stats';
+import { RendererType } from '../types/renderer-type';
 
 const WASM_MODULE_PATH = `${window.location.origin}/assembly/module.wasm`;
 const PAGE_SIZE = 64 * 1024;
@@ -24,6 +25,10 @@ export class FractalWASM implements IRenderer {
 
 	getCanvasType(): CanvasContextType {
 		return CanvasContextType.CANVAS_2D;
+	}
+
+	getType(): RendererType {
+		return RendererType.WASM;
 	}
 
 	private growMemory(size: Size) {

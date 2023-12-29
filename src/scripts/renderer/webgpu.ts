@@ -8,6 +8,7 @@ import { Camera } from "../types/camera";
 import { FileUtils } from "../utils/file";
 import { CanvasRenderingContext } from "../types/canvas-rendering-context";
 import { StatsUtils } from "../utils/stats";
+import { RendererType } from "../types/renderer-type";
 
 export class FractalWebGPU implements IRenderer {
 
@@ -43,6 +44,10 @@ export class FractalWebGPU implements IRenderer {
 
 	getCanvasType(): CanvasContextType {
 		return CanvasContextType.WEBGPU;
+	}
+
+	getType(): RendererType {
+		return RendererType.WebGPU;
 	}
 
 	private createVertexBuffer() {

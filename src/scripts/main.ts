@@ -17,6 +17,8 @@ import { FullscreenUtils } from "./utils/fullscreen";
 import { UIUtils } from "./utils/ui";
 import { Optional } from "./types/optional";
 import { StatsUtils } from "./utils/stats";
+import { StorageUtils } from "./utils/storage";
+import { RendererType } from "./types/renderer-type";
 
 export class Main {
 
@@ -43,24 +45,53 @@ export class Main {
 
 	constructor() {
 		Log.info("Main", "Starting up...");
+		this.loadLastRendererUsed();
 		this.attachHooks();
+	}
+
+	private loadLastRendererUsed() {
+		const lastRendererUsed = StorageUtils.get<RendererType>("renderer", RendererType.CPU);
+		switch (lastRendererUsed) {
+			case RendererType.CPU:
+				this.renderer = new FractalCPU();
+				break;
+			case RendererType.CPUMathJS:
+				this.renderer = new FractalCPUMathJS();
+				break;
+			case RendererType.WebGL:
+				this.renderer = new FractalWebGL();
+				break;
+			case RendererType.WebGPU:
+				this.renderer = new FractalWebGPU();
+				break;
+			case RendererType.WASM:
+				this.renderer = new FractalWASM();
+				break;
+			default:
+				return;
+		}
+		UIUtils.onRendererChange(this.renderer);
 	}
 
 	public async setRenderer(renderer: IRenderer) {
 		StatsUtils.reset();
 
+		// Store the last used renderer
+		StorageUtils.set("renderer", renderer.getType());
+
+		// Stop rendering
 		if (this.animationFrameHandle >= 0) {
 			cancelAnimationFrame(this.animationFrameHandle);
 			this.animationFrameHandle = -1;
 		}
 
+		// Swap renderers
 		if (this.renderer != null) {
 			this.renderer.destroy(this.canvas!.context)
 		}
-
 		this.renderer = renderer;
 
-
+		// Update UI to swap canvases
 		await UIUtils.transition(async () => {
 			if (this.canvas !== null) {
 				this.canvas.element.remove();

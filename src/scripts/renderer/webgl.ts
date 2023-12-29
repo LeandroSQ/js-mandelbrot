@@ -6,6 +6,7 @@ import { Log } from "../utils/log";
 import { gatherStats, measure, measureOverTime } from "../decorators/measure";
 import { Camera } from "../types/camera";
 import { StatsUtils } from "../utils/stats";
+import { RendererType } from "../types/renderer-type";
 
 export class FractalWebGL implements IRenderer {
 
@@ -28,6 +29,10 @@ export class FractalWebGL implements IRenderer {
 
 	getCanvasType(): CanvasContextType {
 		return CanvasContextType.WEBGL;
+	}
+
+	getType(): RendererType {
+		return RendererType.WebGL;
 	}
 
 	private async loadShader(gl: WebGL2RenderingContext, filename: string, type: number): Promise<WebGLShader> {
