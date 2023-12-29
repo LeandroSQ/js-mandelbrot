@@ -126,6 +126,8 @@ export class DesktopCameraController implements ICameraController {
 	private onMouseMove(event: MouseEvent) {
 		if (!event.target) return;
 
+		event.preventDefault();
+
 		const dpi = window.devicePixelRatio ?? 1;
 		const x = event.layerX ?? (event.clientX ?? event.offsetX - event.target.offsetLeft);
 		const y = event.layerY ?? (event.clientY ?? event.offsetY - event.target.offsetTop);
@@ -173,8 +175,12 @@ export class DesktopCameraController implements ICameraController {
 		} else {
 			// Use trackpad panning
 			this.isTrackPadPanning = true;
-			this.mouse.x -= delta.x;
-			this.mouse.y -= delta.y;
+			if (event.shiftKey && delta.x === 0) {
+				this.mouse.x -= delta.y;
+			} else {
+				this.mouse.x -= delta.x;
+				this.mouse.y -= delta.y;
+			}
 		}
 	}
 	// #endregion
