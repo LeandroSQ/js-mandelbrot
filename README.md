@@ -66,7 +66,9 @@ The only target not widely supported is WebGPU, you can check the support [here]
 > <img src=".github/images/Gesture_Double_Tap.png" align="center" width="32"> Double tap to toggle fullscreen
 
 ## Project
+
 ### Resources
+
 | Name | Description |
 | -- | -- |
 | Eslint | For linting and semantic analysis |
@@ -82,6 +84,8 @@ The only target not widely supported is WebGPU, you can check the support [here]
 | Github actions | For CI, building and deploying to github pages |
 | [Google fonts](https://fonts.google.com/) | For the [Rubik](https://fonts.google.com/specimen/Rubik) font |
 | FontAwesome | For the [favicon](https://fontawesome.com/icons/robot?s=solid&f=classic) |
+| View Transition API | For the page transitions |
+| Vibrate API | For the haptic feedback |
 
 ### Devices used for testing
 
