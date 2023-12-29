@@ -1,12 +1,15 @@
 /* eslint-disable max-statements */
 import { CanvasContextType } from "../types/canvas-context-type";
-import { IFractal } from "../types/ifractal";
+import { IRenderer } from "../types/irenderer";
 import { complex, Complex, add, pow, abs, smallerEq, log, log2 } from "mathjs";
 import { Log } from "../utils/log";
 import { Color } from "../utils/color";
 import { Camera } from "../types/camera";
+import { CanvasRenderingContext } from "../types/canvas-rendering-context";
+import { measure, measureOverTime } from "../decorators/measure";
+import { StatsUtils } from "../utils/stats";
 
-export class FractalCPUMathJS implements IFractal {
+export class FractalCPUMathJS implements IRenderer {
 
 	private buffer: Uint8ClampedArray = new Uint8ClampedArray(0);
 	private imageData: ImageData | null = null;
@@ -59,10 +62,12 @@ export class FractalCPUMathJS implements IFractal {
 				this.x++;
 			}
 			if (this.x >= camera.viewport.width) {
+				StatsUtils.endFrame();
 				this.y = 0;
 				this.x = 0;
 				Log.measure("CPU-MathJS", this.timer);
 				this.timer = 0;
+				StatsUtils.startFrame();
 			}
 
 			// Convert pixel coordinate to complex number
@@ -88,6 +93,13 @@ export class FractalCPUMathJS implements IFractal {
 		this.timer += performance.now() - start;
 
 		ctx.putImageData(this.imageData, 0, 0);
+	}
+
+	@measure("CPU-MATHJS-DESTROY")
+	async destroy(ctx: CanvasRenderingContext) {
+		Log.info("FractalCPU", "Destroying...");
+		this.imageData = null;
+		this.buffer = null;
 	}
 
 }

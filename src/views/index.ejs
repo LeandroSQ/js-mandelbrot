@@ -9,11 +9,21 @@
 
 		<%- include("./seo.ejs") %>
 
+		<%- include("./font.ejs") %>
+
 		<!-- Main CSS style -->
         <link rel="stylesheet" href="styles/style.min.css"/>
 	</head>
 	<body>
 		<%- include("./modal.ejs") %>
+
+		<div id="wrapper">
+
+			<%- include("./stats.ejs") %>
+		</div>
+
+		<%- include("./footer.ejs") %>
+
 
 		<!-- Main script -->
 		<script src="./scripts/bundle.js"></script>

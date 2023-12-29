@@ -1,4 +1,5 @@
 import { Log } from "../utils/log";
+import { StatsUtils } from "../utils/stats";
 
 /**
  * A dummy function that returns the value of the original function.
@@ -131,4 +132,24 @@ export function measureOverTime(tag: string, interval = 1000) {
 			return result;
 		};
 	};
+}
+
+export function gatherStats() {
+	return function (target: object, propertyKey: string, descriptor: PropertyDescriptor) {
+		const original = descriptor.value;
+		if (!original) return;
+
+		descriptor.value = function (...args) {
+			StatsUtils.startFrame();
+			const result = original.apply(this, args);
+
+			if (result instanceof Promise) {
+				result.then(() => StatsUtils.endFrame());
+			} else {
+				StatsUtils.endFrame();
+			}
+
+			return result;
+		};
+	}
 }

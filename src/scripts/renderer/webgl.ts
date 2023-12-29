@@ -1,12 +1,15 @@
 import { CanvasContextType } from "../types/canvas-context-type";
-import { IFractal } from "../types/ifractal";
+import { IRenderer } from "../types/irenderer";
 import { FileUtils } from "../utils/file";
 import { Optional } from "../types/optional";
 import { Log } from "../utils/log";
-import { measure, measureOverTime } from "../decorators/measure";
+import { gatherStats, measure, measureOverTime } from "../decorators/measure";
 import { Camera } from "../types/camera";
+import { StatsUtils } from "../utils/stats";
 
-export class FractalWebGL implements IFractal {
+export class FractalWebGL implements IRenderer {
+
+	private alreadySetup = false;
 
 	private shaderProgram: Optional<WebGLProgram> = null;
 
@@ -46,6 +49,9 @@ export class FractalWebGL implements IFractal {
 	}
 
 	private setupBuffers(gl: WebGL2RenderingContext) {
+		if (this.alreadySetup) return;
+		this.alreadySetup = true;
+
 		Log.debug("FractalWebGL", "Setting up buffers...");
 		if (!this.shaderProgram) throw new Error("Shader program not initialized");
 
@@ -126,6 +132,7 @@ export class FractalWebGL implements IFractal {
 
 	@measureOverTime("WEBGL-STEP")
 	async step(gl: WebGL2RenderingContext, camera: Camera) {
+		StatsUtils.startFrame();
 		if (!this.shaderProgram) throw new Error("Shader program not initialized");
 
 		// Resize viewport if necessary
@@ -143,6 +150,14 @@ export class FractalWebGL implements IFractal {
 		const offset = 0;
 		const vertexCount = 4;
 		gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+		StatsUtils.endFrame();
+	}
+
+	@measure("WEBGL-DESTROY")
+	async destroy(gl: WebGL2RenderingContext) {
+		Log.info("FractalWebGL", "Destroying...");
+		if (this.shaderProgram !== null) gl.deleteProgram(this.shaderProgram);
+		if (this.positionBuffer !== null) gl.deleteBuffer(this.positionBuffer);
 	}
 
 }

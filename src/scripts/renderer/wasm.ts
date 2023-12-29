@@ -1,6 +1,6 @@
-import { measure, measureOverTime } from '../decorators/measure';
+import { gatherStats, measure, measureOverTime } from '../decorators/measure';
 import { CanvasContextType } from '../types/canvas-context-type';
-import { IFractal } from '../types/ifractal';
+import { IRenderer } from '../types/irenderer';
 import { Optional } from '../types/optional';
 import { Size } from '../types/size';
 import { Log } from '../utils/log';
@@ -8,11 +8,13 @@ import { Log } from '../utils/log';
 import * as binding from "../../assembly/module";
 import type { __AdaptedExports as WASMModule } from "../../assembly/module.d.ts";
 import { Camera } from '../types/camera';
+import { CanvasRenderingContext } from '../types/canvas-rendering-context';
+import { StatsUtils } from '../utils/stats';
 
 const WASM_MODULE_PATH = `${window.location.origin}/assembly/module.wasm`;
 const PAGE_SIZE = 64 * 1024;
 
-export class FractalWASM implements IFractal {
+export class FractalWASM implements IRenderer {
 
 	private instance: Optional<typeof WASMModule> = null;
 	private memory: Optional<WebAssembly.Memory> = null;
@@ -30,10 +32,8 @@ export class FractalWASM implements IFractal {
 		const newSize = size.width * size.height * 4;
 
 		const pagesToGrow = Math.ceil((newSize - oldSize) / PAGE_SIZE);
-		if (pagesToGrow <= 0) {
-			Log.warn("FractalWASM", "Memory already large enough");
-		} else {
-			Log.info("FractalWASM", `Growing memory by ${pagesToGrow} pages. From ${oldSize} bytes to ${newSize} bytes. (${PAGE_SIZE * pagesToGrow} bytes in total)`);
+		if (pagesToGrow > 0) {
+			Log.info("FractalWASM", `Growing memory by ${pagesToGrow} pages. From ${Math.prettifySize(oldSize)} bytes to ${Math.prettifySize(newSize)} bytes. (${Math.prettifySize(PAGE_SIZE * pagesToGrow)} bytes in total)`);
 			this.memory.grow(pagesToGrow);
 		}
 
@@ -56,6 +56,7 @@ export class FractalWASM implements IFractal {
 
 	@measureOverTime("CPU-WASM")
 	async step(ctx: CanvasRenderingContext2D, camera: Camera) {
+		StatsUtils.startFrame();
 		const byteSize = camera.viewport.width * camera.viewport.height * 4;
 		if (this.memory === null || this.imageData === null || this.imageData.width !== camera.viewport.width || this.imageData.height !== camera.viewport.height) {
 			this.growMemory(camera.viewport);
@@ -77,6 +78,15 @@ export class FractalWASM implements IFractal {
 		);
 
 		ctx.putImageData(this.imageData, 0, 0);
+		StatsUtils.endFrame();
+	}
+
+	@measure("WASM-DESTROY")
+	async destroy(ctx: CanvasRenderingContext) {
+		Log.info("FractalWASM", "Destroying...");
+		this.instance = null;
+		this.memory = null;
+		this.imageData = null;
 	}
 
 }

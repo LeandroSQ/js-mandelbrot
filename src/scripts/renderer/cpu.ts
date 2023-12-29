@@ -1,11 +1,14 @@
 /* eslint-disable max-statements */
 import { CanvasContextType } from "../types/canvas-context-type";
-import { IFractal } from "../types/ifractal";
+import { IRenderer } from "../types/irenderer";
 import { Color } from "../utils/color";
-import { measureOverTime } from "../decorators/measure";
+import { gatherStats, measure, measureOverTime } from "../decorators/measure";
 import { Camera } from "../types/camera";
+import { CanvasRenderingContext } from "../types/canvas-rendering-context";
+import { Log } from "../utils/log";
+import { StatsUtils } from "../utils/stats";
 
-export class FractalCPU implements IFractal {
+export class FractalCPU implements IRenderer {
 
 	private buffer: Uint8ClampedArray = new Uint8ClampedArray(0);
 	private imageData: ImageData | null = null;
@@ -29,6 +32,8 @@ export class FractalCPU implements IFractal {
 
 	@measureOverTime("CPU-JS")
 	async step(ctx: CanvasRenderingContext2D, camera: Camera) {
+		StatsUtils.startFrame();
+
 		if (this.buffer.length !== camera.viewport.width * camera.viewport.height * 4 || !this.imageData) {
 			this.buffer = new Uint8ClampedArray(camera.viewport.width * camera.viewport.height * 4);
 			this.imageData = new ImageData(this.buffer, camera.viewport.width, camera.viewport.height);
@@ -81,6 +86,15 @@ export class FractalCPU implements IFractal {
 		}
 
 		ctx.putImageData(this.imageData, 0, 0);
+
+		StatsUtils.endFrame();
+	}
+
+	@measure("CPU-JS-DESTROY")
+	async destroy(ctx: CanvasRenderingContext) {
+		Log.info("FractalCPU", "Destroying...");
+		this.imageData = null;
+		this.buffer = null;
 	}
 
 }

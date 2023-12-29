@@ -1,13 +1,17 @@
 /* eslint-disable max-statements */
 import { CanvasContextType } from "../types/canvas-context-type";
-import { IFractal } from "../types/ifractal";
+import { IRenderer } from "../types/irenderer";
 import { Optional } from "../types/optional";
 import { Log } from "../utils/log";
-import { measure, measureOverTime } from "../decorators/measure";
+import { gatherStats, measure, measureOverTime } from "../decorators/measure";
 import { Camera } from "../types/camera";
 import { FileUtils } from "../utils/file";
+import { CanvasRenderingContext } from "../types/canvas-rendering-context";
+import { StatsUtils } from "../utils/stats";
 
-export class FractalWebGPU implements IFractal {
+export class FractalWebGPU implements IRenderer {
+
+	private alreadySetup = false;
 
 	private adapter: Optional<GPUAdapter> = null;
 	private device: Optional<GPUDevice> = null;
@@ -152,6 +156,9 @@ export class FractalWebGPU implements IFractal {
 
 	@measure("WEB-GPU setup")
 	async setup(ctx: GPUCanvasContext) {
+		if (this.alreadySetup) return;
+		this.alreadySetup = true;
+
 		if (!("gpu" in navigator) && !("webgpu" in navigator)) {
 			throw new Error("WebGPU not supported");
 		}
@@ -213,6 +220,7 @@ export class FractalWebGPU implements IFractal {
 
 	@measureOverTime("WEB-GPU step")
 	async step(ctx: GPUCanvasContext, camera: Camera) {
+		StatsUtils.startFrame();
 		if (!this.device) throw new Error("Device not initialized");
 		if (!this.pipeline) throw new Error("Pipeline not initialized");
 
@@ -238,6 +246,19 @@ export class FractalWebGPU implements IFractal {
 
 		passEncoder.end();
 		this.device.queue.submit([commandEncoder.finish()]);
+		StatsUtils.endFrame();
+	}
+
+	@measure("WEBGPU-DESTROY")
+	async destroy(ctx: GPUCanvasContext) {
+		Log.info("FractalWebGPU", "Destroying...");
+
+		this.vertexBuffer?.destroy();
+		this.dimensionBuffer?.destroy();
+		this.complexPlaneBuffer?.destroy();
+
+		this.device?.destroy();
+		ctx.unconfigure();
 	}
 
 }
