@@ -18,10 +18,9 @@ export class MoveGestureHandler extends AGestureHandler {
 	detectGesture(pointers: PointerState[], camera: Camera): boolean {
 		if (pointers.length === 0 && this.lastPointer !== null) {
 			// Detected end of gesture, apply inertia to camera
-			const dpi = window.devicePixelRatio ?? 1;
 			const delta = {
-				x: (this.lastPointer.position.x - this.lastPointer.lastPosition.x) * speed * camera.fractalSize / camera.viewport.width / camera.zoom * dpi,
-				y: (this.lastPointer.position.y - this.lastPointer.lastPosition.y) * speed * camera.fractalSize / camera.viewport.height / camera.zoom * dpi,
+				x: (this.lastPointer.position.x - this.lastPointer.lastPosition.x) * speed * camera.fractalSize / camera.viewport.width / camera.zoom,
+				y: (this.lastPointer.position.y - this.lastPointer.lastPosition.y) * speed * camera.fractalSize / camera.viewport.height / camera.zoom,
 			};
 
 			this.velocity.x += delta.x * inertia;
@@ -46,10 +45,9 @@ export class MoveGestureHandler extends AGestureHandler {
 			const pointer = pointers[0];
 
 			this.lastPointer = { ...pointer };
-			const dpi = window.devicePixelRatio ?? 1;
 			const delta = {
-				x: (pointer.position.x - pointer.lastPosition.x) * speed * camera.fractalSize / camera.viewport.width / camera.zoom * dpi,
-				y: (pointer.position.y - pointer.lastPosition.y) * speed * camera.fractalSize / camera.viewport.height / camera.zoom * dpi,
+				x: (pointer.position.x - pointer.lastPosition.x) * speed * camera.fractalSize / camera.viewport.width / camera.zoom,
+				y: (pointer.position.y - pointer.lastPosition.y) * speed * camera.fractalSize / camera.viewport.height / camera.zoom,
 			};
 
 			camera.position.x -= delta.x;

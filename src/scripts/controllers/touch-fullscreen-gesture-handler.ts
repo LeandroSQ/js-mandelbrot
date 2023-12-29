@@ -3,6 +3,7 @@ import { Camera } from "../types/camera";
 import { Optional } from "../types/optional";
 import { PointerState } from "../types/pointer-state";
 import { VectorMath } from "../types/vector";
+import { FullscreenUtils } from "../utils/fullscreen";
 import { Log } from "../utils/log";
 
 const TAP_DURATION = 100;
@@ -84,27 +85,8 @@ export class FullscreenGestureHandler extends AGestureHandler {
 		return false;
 	}
 
-	async apply(pointers: PointerState[], camera: Camera) {
-		try {
-			const element = document.getElementsByTagName("canvas")[0];
-			const fullscreenElement = document.fullscreenElement ?? document["webkitFullscreenElement"] ?? document["mozFullScreenElement"] ?? document["msFullscreenElement"];
-			const fullscreenEnabled = document.fullscreenEnabled ?? document["webkitFullscreenEnabled"] ?? document["mozFullScreenEnabled"] ?? document["msFullscreenEnabled"];
-			const requestFullscreen = element.requestFullscreen ?? element["webkitRequestFullscreen"] ?? element["mozRequestFullScreen"] ?? element["msRequestFullscreen"];
-			const exitFullscreen = document.exitFullscreen ?? document["webkitExitFullscreen"] ?? document["mozCancelFullScreen"] ?? document["msExitFullscreen"];
-
-			if (!fullscreenEnabled) {
-				Log.error("Fullscreen", "Fullscreen is not enabled");
-				return;
-			}
-
-			if (fullscreenElement) {
-				await exitFullscreen.call(document);
-			} else {
-				await requestFullscreen.call(element);
-			}
-		} catch (error) {
-			Log.error("Fullscreen", `Error while requesting fullscreen: ${error}`);
-		}
+	apply(pointers: PointerState[], camera: Camera) {
+		FullscreenUtils.toggle();
 	}
 
 	update(deltaTime: number, pointers: PointerState[], camera: Camera) {

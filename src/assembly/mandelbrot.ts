@@ -101,10 +101,6 @@ export function render(width: i32, height: i32, cameraX: f32, cameraY: f32, frac
 
 			index = __heap_base + (x + y * width) * 4;
 			calculateColor(tmp, index, iteration, maxIterations);
-			/* store<u8>(index, <u8>(tmp / <f32>maxIterations * 255.0));
-			store<u8>(index + 1, 128);
-			store<u8>(index + 2, 128);
-			store<u8>(index + 3, 255); */
 		}
 
 		tmpX = -0.5;

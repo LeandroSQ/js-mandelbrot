@@ -6,11 +6,8 @@ import { Vector } from '../types/vector';
 
 export class ScaleGestureHandler extends AGestureHandler {
 
-	private threshold = 10;
 	private lastDistance = 0;
 	private zoomVelocity = 0;
-	private lastMidPoint: Vector = { x: 0, y: 0 };
-	private element: Optional<HTMLElement> = null;
 
 	detectGesture(pointers: PointerState[], camera: Camera): boolean {
 		return pointers.length === 2;
@@ -36,11 +33,11 @@ export class ScaleGestureHandler extends AGestureHandler {
 
 	apply(pointers: PointerState[], camera: Camera) {
 		this.lastDistance = this.calculateDistance(pointers);
-		this.lastMidPoint = this.calculateMidPoint(pointers);
 	}
 
 	update(deltaTime: number, pointers: PointerState[], camera: Camera) {
-		const speed = 0.005;
+		const dpi = window.devicePixelRatio ?? 1;
+		const speed = 0.005 / dpi;
 		const zoomFriction = 0.9;
 		const minZoom = 0.5;
 		const maxZoom = 318226.2513349596;
@@ -49,36 +46,15 @@ export class ScaleGestureHandler extends AGestureHandler {
 		const maxIterations = 20024;
 
 		if (this.isInteracting) {
-			if (this.element === null) {
-				this.element = document.createElement("div");
-				this.element!.style.setProperty("background-color", "blue");
-				this.element!.style.setProperty("width", "50px");
-				this.element!.style.setProperty("height", "50px");
-				this.element!.style.setProperty("position", "absolute");
-				this.element!.style.setProperty("top", "0px");
-				this.element!.style.setProperty("left", "0px");
-				this.element!.style.setProperty("z-index", "1000");
-				this.element!.style.setProperty("pointer-events", "none");
-				this.element!.style.setProperty("border-radius", "50%");
-				document.body.appendChild(this.element!);
-			}
-
-			const pointerA = pointers[0];
-			const pointerB = pointers[1];
-
-			const dpi = window.devicePixelRatio ?? 1;
-
 			// Calculate maximum distance between pointers, using the viewport diagonal
 			const distance = this.calculateDistance(pointers);
-			// const maxDistance = Math.sqrt(Math.pow(camera.viewport.width, 2) + Math.pow(camera.viewport.height, 2)) / dpi;
-
 			if (distance - this.lastDistance !== 0.0) {
 				this.zoomVelocity += (distance - this.lastDistance) * speed;
 			}
-
 			const zoomDelta = 1.0 - (this.zoomVelocity * deltaTime +  this.lastDistance - distance) * speed;
 			this.lastDistance = distance;
 
+			// Apply zoom
 			const oldZoom = camera.zoom;
 			camera.zoom *= zoomDelta;
 			camera.zoom = Math.clamp(camera.zoom, minZoom, maxZoom);
@@ -89,12 +65,12 @@ export class ScaleGestureHandler extends AGestureHandler {
 				x: ((center.x) / camera.viewport.width - 0.5) * camera.fractalSize / oldZoom * (1.0 - 1.0 / zoomDelta),
 				y: ((center.y) / camera.viewport.height - 0.5) * camera.fractalSize / oldZoom * (1.0 - 1.0 / zoomDelta),
 			};
-			this.lastMidPoint = center;
-
 			camera.position.x += delta.x;
 			camera.position.y += delta.y;
 
-			this.element!.style.setProperty("transform", `translate(${center.x}px, ${center.y}px)`);
+			// Adjust the iteration count to keep the fractal constant
+		 	camera.maxIterations = Math.floor(defaultIterations + camera.zoom * 0.2);
+		 	camera.maxIterations = Math.clamp(camera.maxIterations, minIterations, maxIterations);
 		}
 	}
 

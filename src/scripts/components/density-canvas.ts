@@ -66,6 +66,7 @@ export class DensityCanvas {
 	}
 
 	get drawRatio(): number {
+		// return 1;// TODO: Remove this
 		return this.devicePixelRatio / this.backingStoreRatio;
 	}
 

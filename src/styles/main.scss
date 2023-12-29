@@ -67,3 +67,11 @@ canvas {
 
 	pointer-events: all;
 }
+
+@media all and (display-mode: fullscreen) {
+	canvas {
+		border-radius: 0px;
+		border: none;
+		box-shadow: none;
+	}
+}

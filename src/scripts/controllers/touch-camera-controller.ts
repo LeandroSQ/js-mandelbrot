@@ -73,18 +73,20 @@ export class TouchCameraController implements ICameraController {
 	}
 
 	private getPositionFromEvent(event: PointerEvent): Vector {
+		const dpi = window.devicePixelRatio ?? 1;
 		return {
-			x: event.layerX ?? (event.clientX ?? event.offsetX - (event.target?.offsetLeft ?? 0)),
-			y: event.layerY ?? (event.clientY ?? event.offsetY - (event.target?.offsetTop ?? 0)),
+			x: (event.layerX ?? (event.clientX ?? event.offsetX - (event.target?.offsetLeft ?? 0))) * dpi,
+			y: (event.layerY ?? (event.clientY ?? event.offsetY - (event.target?.offsetTop ?? 0))) * dpi,
 		};
 	}
 
 	private checkIfInsideElement(event: PointerEvent): boolean {
+		const dpi = window.devicePixelRatio ?? 1;
 		const position = this.getPositionFromEvent(event);
 
 		const element = event.target as HTMLElement;
 
-		if (position.x < 0 || position.x > element.clientWidth || position.y < 0 || position.y > element.clientHeight) {
+		if (position.x < 0 || position.x > element.clientWidth * dpi || position.y < 0 || position.y > element.clientHeight * dpi) {
 			Log.error("CameraController", `Pointer ${event.pointerId} is outside of element`);
 
 			return false;

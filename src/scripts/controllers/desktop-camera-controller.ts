@@ -1,6 +1,7 @@
 import { Camera } from "../types/camera";
 import { ICameraController } from "../types/icamera-controller";
 import { Vector } from "../types/vector";
+import { FullscreenUtils } from "../utils/fullscreen";
 
 export class DesktopCameraController implements ICameraController {
 
@@ -23,6 +24,7 @@ export class DesktopCameraController implements ICameraController {
 	constructor(private camera: Camera) { }
 
 	attachHooks(element: HTMLElement) {
+		document.addEventListener("keyup", this.onKeyUp.bind(this));
 		element.addEventListener("mousedown", this.onMouseDown.bind(this));
 		element.addEventListener("mousemove", this.onMouseMove.bind(this));
 		element.addEventListener("mouseup", this.onMouseUp.bind(this));
@@ -52,8 +54,8 @@ export class DesktopCameraController implements ICameraController {
 		if (this.wasMouseDown || this.isTrackPadPanning) {
 			const dpi = window.devicePixelRatio ?? 1;
 			const delta = {
-				x: this.mouseDelta.x * speed * this.camera.fractalSize / this.camera.viewport.width / this.camera.zoom * dpi,
-				y: this.mouseDelta.y * speed * this.camera.fractalSize / this.camera.viewport.height / this.camera.zoom * dpi
+				x: this.mouseDelta.x * speed * this.camera.fractalSize / this.camera.viewport.width / this.camera.zoom,
+				y: this.mouseDelta.y * speed * this.camera.fractalSize / this.camera.viewport.height / this.camera.zoom
 			};
 
 			if (this.isMouseDown || this.isTrackPadPanning) {
@@ -103,6 +105,15 @@ export class DesktopCameraController implements ICameraController {
 	}
 
 	// #region Event Handlers
+	private onKeyUp(event: KeyboardEvent) {
+		console.log(event);
+		if (event.key === "F11") {
+			event.preventDefault();
+
+			FullscreenUtils.toggle();
+		}
+	}
+
 	private onMouseDown(event: MouseEvent) {
 		if (event.button === 0 || event.button === 1) { // Left-click or middle-click
 			this.isMouseDown = true;
@@ -115,11 +126,12 @@ export class DesktopCameraController implements ICameraController {
 	private onMouseMove(event: MouseEvent) {
 		if (!event.target) return;
 
+		const dpi = window.devicePixelRatio ?? 1;
 		const x = event.layerX ?? (event.clientX ?? event.offsetX - event.target.offsetLeft);
 		const y = event.layerY ?? (event.clientY ?? event.offsetY - event.target.offsetTop);
 
-		this.mouse.x = x;
-		this.mouse.y = y;
+		this.mouse.x = x * dpi;
+		this.mouse.y = y * dpi;
 	}
 
 	private onMouseUp(event: MouseEvent) {

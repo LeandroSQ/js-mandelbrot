@@ -128,6 +128,12 @@ export class FractalWebGL implements IFractal {
 	async step(gl: WebGL2RenderingContext, camera: Camera) {
 		if (!this.shaderProgram) throw new Error("Shader program not initialized");
 
+		// Resize viewport if necessary
+		const currentViewport: Int32Array = gl.getParameter(gl.VIEWPORT);
+		if (currentViewport[2] !== camera.viewport.width || currentViewport[3] !== camera.viewport.height) {
+			gl.viewport(0, 0, camera.viewport.width, camera.viewport.height);
+		}
+
 		gl.clear(gl.COLOR_BUFFER_BIT);
 
 		gl.useProgram(this.shaderProgram);

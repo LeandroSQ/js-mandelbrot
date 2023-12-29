@@ -32,11 +32,10 @@ export class FractalWASM implements IFractal {
 		const pagesToGrow = Math.ceil((newSize - oldSize) / PAGE_SIZE);
 		if (pagesToGrow <= 0) {
 			Log.warn("FractalWASM", "Memory already large enough");
-			return;
+		} else {
+			Log.info("FractalWASM", `Growing memory by ${pagesToGrow} pages. From ${oldSize} bytes to ${newSize} bytes. (${PAGE_SIZE * pagesToGrow} bytes in total)`);
+			this.memory.grow(pagesToGrow);
 		}
-
-		Log.info("FractalWASM", `Growing memory by ${pagesToGrow} pages. From ${oldSize} bytes to ${newSize} bytes. (${PAGE_SIZE * pagesToGrow} bytes in total)`);
-		this.memory.grow(pagesToGrow);
 
 		const buffer = new Uint8ClampedArray(this.memory.buffer, this.heapBase, newSize);
 		this.imageData = new ImageData(buffer, size.width, size.height);
@@ -58,7 +57,7 @@ export class FractalWASM implements IFractal {
 	@measureOverTime("CPU-WASM")
 	async step(ctx: CanvasRenderingContext2D, camera: Camera) {
 		const byteSize = camera.viewport.width * camera.viewport.height * 4;
-		if (this.memory === null || this.memory.buffer.byteLength - this.heapBase < byteSize || this.imageData === null) {
+		if (this.memory === null || this.imageData === null || this.imageData.width !== camera.viewport.width || this.imageData.height !== camera.viewport.height) {
 			this.growMemory(camera.viewport);
 		}
 
