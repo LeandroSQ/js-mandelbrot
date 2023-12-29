@@ -84,8 +84,8 @@ export class FractalWebGL implements IRenderer {
 	private async loadShaders(gl: WebGL2RenderingContext) {
 		if (!this.shaderProgram) throw new Error("Shader program not initialized");
 
-		const vertexShader = await this.loadShader(gl, "/shaders/webgl/vertex.glsl", gl.VERTEX_SHADER);
-		const fragmentShader = await this.loadShader(gl, "/shaders/webgl/fragment.glsl", gl.FRAGMENT_SHADER);
+		const vertexShader = await this.loadShader(gl, "shaders/webgl/vertex.glsl", gl.VERTEX_SHADER);
+		const fragmentShader = await this.loadShader(gl, "shaders/webgl/fragment.glsl", gl.FRAGMENT_SHADER);
 		gl.attachShader(this.shaderProgram, vertexShader);
 		gl.attachShader(this.shaderProgram, fragmentShader);
 	}
