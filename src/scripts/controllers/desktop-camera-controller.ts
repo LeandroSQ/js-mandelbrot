@@ -50,8 +50,6 @@ export class DesktopCameraController implements ICameraController {
 		const speed = 1.0;
 		const inertia = 45;
 		const friction = 0.925;
-		const min = -1.25;
-		const max = 0.65;
 
 		if (this.wasMouseDown || this.isTrackPadPanning) {
 			const delta = {
@@ -74,9 +72,6 @@ export class DesktopCameraController implements ICameraController {
 			this.panVelocity.x *= friction;
 			this.panVelocity.y *= friction;
 		}
-
-		this.camera.position.x = Math.clamp(this.camera.position.x, min, max);
-		this.camera.position.y = Math.clamp(this.camera.position.y, min, max);
 	}
 
 	private zoomCamera(deltaTime: number) {
@@ -131,7 +126,7 @@ export class DesktopCameraController implements ICameraController {
 	private onMouseMove(event: MouseEvent) {
 		if (!event.target) return;
 		if (this.isTrackPadPanning) return;
-	
+
 		event.stopPropagation();
 
 		const dpi = window.devicePixelRatio ?? 1;
