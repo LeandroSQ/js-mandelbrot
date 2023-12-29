@@ -151,5 +151,5 @@ export function gatherStats() {
 
 			return result;
 		};
-	}
+	};
 }

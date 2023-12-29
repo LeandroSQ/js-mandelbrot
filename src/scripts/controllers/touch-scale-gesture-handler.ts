@@ -1,15 +1,15 @@
-import { Optional } from './../types/optional';
-import { PointerState } from './../types/pointer-state';
+/* eslint-disable max-statements */
+import { PointerState } from "./../types/pointer-state";
 import { AGestureHandler } from "../types/agesture-handler";
 import { Camera } from "../types/camera";
-import { Vector } from '../types/vector';
+import { Vector } from "../types/vector";
 
 export class ScaleGestureHandler extends AGestureHandler {
 
 	private lastDistance = 0;
 	private zoomVelocity = 0;
 
-	detectGesture(pointers: PointerState[], camera: Camera): boolean {
+	detectGesture(pointers: PointerState[], _camera: Camera): boolean {
 		return pointers.length === 2;
 	}
 
@@ -31,14 +31,13 @@ export class ScaleGestureHandler extends AGestureHandler {
 
 	}
 
-	apply(pointers: PointerState[], camera: Camera) {
+	apply(pointers: PointerState[], _camera: Camera) {
 		this.lastDistance = this.calculateDistance(pointers);
 	}
 
 	update(deltaTime: number, pointers: PointerState[], camera: Camera) {
 		const dpi = window.devicePixelRatio ?? 1;
 		const speed = 0.005 / dpi;
-		const zoomFriction = 0.9;
 		const minZoom = 0.5;
 		const maxZoom = 318226.2513349596;
 		const defaultIterations = 80;

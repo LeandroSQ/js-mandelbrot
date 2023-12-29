@@ -24,7 +24,7 @@ export abstract class UIUtils {
 
 	public static onRendererChange(renderer: IRenderer) {
 		this.setActiveButton(renderer.getType());
-    }
+	}
 
 	public static attachHooks(main: Main) {
 		this.elementFPS = document.getElementById("fps");
@@ -33,13 +33,13 @@ export abstract class UIUtils {
 		this.elementMaxFrameTime = document.getElementById("max-frametime");
 		this.elementMemory = document.getElementById("memory");
 
-        document.querySelectorAll("footer button").forEach((button) => {
-            if (button instanceof HTMLButtonElement)
-                button.addEventListener("click", UIUtils.onButtonClick.bind(this, main, button));
+		document.querySelectorAll("footer button").forEach((button) => {
+			if (button instanceof HTMLButtonElement)
+				button.addEventListener("click", UIUtils.onButtonClick.bind(this, main, button));
 		});
-    }
+	}
 
-    private static onButtonClick(main: Main, button: HTMLButtonElement, event: MouseEvent) {
+	private static onButtonClick(main: Main, button: HTMLButtonElement, _event: MouseEvent) {
 		const id = button.id as RendererType;
 		Log.debug("UIUtils", `Button ${id} clicked`);
 		switch (id) {
@@ -60,8 +60,8 @@ export abstract class UIUtils {
 				break;
 			default:
 				Log.warn("UIUtils", `Unknown button click ${button}`);
-                break;
-        }
+				break;
+		}
 	}
 
 	private static setButtonsEnabled(enabled: boolean) {
@@ -76,7 +76,7 @@ export abstract class UIUtils {
 				const startViewTransition = window.getPrefixedProperty<Optional<(action) => void>>(document, "startViewTransition", false);
 
 				const wrapper = document.getElementById("wrapper");
-				if (wrapper === null) return reject("Wrapper not found");
+				if (wrapper === null) return reject(new Error("Wrapper not found"));
 
 				wrapper.classList.add("loading");
 				this.setButtonsEnabled(false);
@@ -107,6 +107,7 @@ export abstract class UIUtils {
 
 	}
 
+	// eslint-disable-next-line max-params
 	public static updateStats(fps: number, estimatedFPS: number, avgFrameTime: number, minFrameTime: number, maxFrameTime: number) {
 		if (this.elementFPS) this.elementFPS.textContent = `${fps} real | ${Math.round(estimatedFPS)} (est.)`;
 		if (this.elementAvgFrameTime) this.elementAvgFrameTime.textContent = Math.prettifyElapsedTime(avgFrameTime);

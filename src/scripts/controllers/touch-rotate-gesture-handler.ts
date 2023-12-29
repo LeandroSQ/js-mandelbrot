@@ -4,18 +4,16 @@ import { PointerState } from "../types/pointer-state";
 
 export class RotateGestureHandler extends AGestureHandler {
 
-	private threshold = 10;
-
-	detectGesture(pointers: PointerState[], camera: Camera): boolean {
-
+	detectGesture(_pointers: PointerState[], _camera: Camera): boolean {
+		return false;
 	}
 
-	apply(pointers: PointerState[], camera: Camera) {
-
+	apply(_pointers: PointerState[], _camera: Camera) {
+		// Ignore
 	}
 
-	update(deltaTime: number, camera: Camera) {
-
+	update(_deltaTime: number, _pointers: PointerState[], _camera: Camera) {
+		// Ignore
 	}
 
 }

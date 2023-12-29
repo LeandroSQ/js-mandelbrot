@@ -4,7 +4,6 @@ import { AGestureHandler } from "../types/agesture-handler";
 import { ICameraController } from "../types/icamera-controller";
 import { PointerState } from "../types/pointer-state";
 import { MoveGestureHandler } from "./touch-move-gesture-handler";
-import { RotateGestureHandler } from "./touch-rotate-gesture-handler";
 import { ScaleGestureHandler } from "./touch-scale-gesture-handler";
 import { Vector } from "../types/vector";
 import { FullscreenGestureHandler } from "./touch-fullscreen-gesture-handler";
@@ -74,6 +73,7 @@ export class TouchCameraController implements ICameraController {
 
 	private getPositionFromEvent(event: PointerEvent): Vector {
 		const dpi = window.devicePixelRatio ?? 1;
+
 		return {
 			x: (event.layerX ?? (event.clientX ?? event.offsetX - (event.target?.offsetLeft ?? 0))) * dpi,
 			y: (event.layerY ?? (event.clientY ?? event.offsetY - (event.target?.offsetTop ?? 0))) * dpi,

@@ -3,7 +3,7 @@ import { IRenderer } from "../types/irenderer";
 import { FileUtils } from "../utils/file";
 import { Optional } from "../types/optional";
 import { Log } from "../utils/log";
-import { gatherStats, measure, measureOverTime } from "../decorators/measure";
+import { measure, measureOverTime } from "../decorators/measure";
 import { Camera } from "../types/camera";
 import { StatsUtils } from "../utils/stats";
 import { RendererType } from "../types/renderer-type";

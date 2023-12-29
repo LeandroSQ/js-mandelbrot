@@ -6,7 +6,7 @@ import { Log } from "../utils/log";
 import { Color } from "../utils/color";
 import { Camera } from "../types/camera";
 import { CanvasRenderingContext } from "../types/canvas-rendering-context";
-import { measure, measureOverTime } from "../decorators/measure";
+import { measure } from "../decorators/measure";
 import { StatsUtils } from "../utils/stats";
 import { RendererType } from "../types/renderer-type";
 
@@ -101,7 +101,7 @@ export class FractalCPUMathJS implements IRenderer {
 	}
 
 	@measure("CPU-MATHJS-DESTROY")
-	async destroy(ctx: CanvasRenderingContext) {
+	async destroy(_ctx: CanvasRenderingContext) {
 		Log.info("FractalCPU", "Destroying...");
 		this.imageData = null;
 		this.buffer = null;

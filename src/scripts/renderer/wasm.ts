@@ -1,18 +1,18 @@
-import { gatherStats, measure, measureOverTime } from '../decorators/measure';
-import { CanvasContextType } from '../types/canvas-context-type';
-import { IRenderer } from '../types/irenderer';
-import { Optional } from '../types/optional';
-import { Size } from '../types/size';
-import { Log } from '../utils/log';
+import { measure, measureOverTime } from "../decorators/measure";
+import { CanvasContextType } from "../types/canvas-context-type";
+import { IRenderer } from "../types/irenderer";
+import { Optional } from "../types/optional";
+import { Size } from "../types/size";
+import { Log } from "../utils/log";
 
 import * as binding from "../../assembly/module";
 import type { __AdaptedExports as WASMModule } from "../../assembly/module.d.ts";
-import { Camera } from '../types/camera';
-import { CanvasRenderingContext } from '../types/canvas-rendering-context';
-import { StatsUtils } from '../utils/stats';
-import { RendererType } from '../types/renderer-type';
+import { Camera } from "../types/camera";
+import { CanvasRenderingContext } from "../types/canvas-rendering-context";
+import { StatsUtils } from "../utils/stats";
+import { RendererType } from "../types/renderer-type";
 
-const WASM_MODULE_PATH = `${window.location.origin}/assembly/module.wasm`;
+const WASM_MODULE_PATH = "assembly/module.wasm";
 const PAGE_SIZE = 64 * 1024;
 
 export class FractalWASM implements IRenderer {
@@ -21,7 +21,7 @@ export class FractalWASM implements IRenderer {
 	private memory: Optional<WebAssembly.Memory> = null;
 	private imageData: Optional<ImageData> = null;
 
-	private heapBase: number = 0;
+	private heapBase = 0;
 
 	getCanvasType(): CanvasContextType {
 		return CanvasContextType.CANVAS_2D;
@@ -47,7 +47,7 @@ export class FractalWASM implements IRenderer {
 	}
 
 	@measure("CPU-WASM-SETUP")
-	async setup(ctx: CanvasRenderingContext2D) {
+	async setup(_ctx: CanvasRenderingContext2D) {
 		const memory = new WebAssembly.Memory({ initial: 1 });
 		this.memory = memory;
 
@@ -62,7 +62,6 @@ export class FractalWASM implements IRenderer {
 	@measureOverTime("CPU-WASM")
 	async step(ctx: CanvasRenderingContext2D, camera: Camera) {
 		StatsUtils.startFrame();
-		const byteSize = camera.viewport.width * camera.viewport.height * 4;
 		if (this.memory === null || this.imageData === null || this.imageData.width !== camera.viewport.width || this.imageData.height !== camera.viewport.height) {
 			this.growMemory(camera.viewport);
 		}
@@ -87,7 +86,7 @@ export class FractalWASM implements IRenderer {
 	}
 
 	@measure("WASM-DESTROY")
-	async destroy(ctx: CanvasRenderingContext) {
+	async destroy(_ctx: CanvasRenderingContext) {
 		Log.info("FractalWASM", "Destroying...");
 		this.instance = null;
 		this.memory = null;

@@ -2,13 +2,10 @@ import { AGestureHandler } from "../types/agesture-handler";
 import { Camera } from "../types/camera";
 import { Optional } from "../types/optional";
 import { PointerState } from "../types/pointer-state";
-import { VectorMath } from "../types/vector";
 import { FullscreenUtils } from "../utils/fullscreen";
-import { Log } from "../utils/log";
 
 const TAP_DURATION = 100;
 const TAP_INTERVAL = 250;
-const TAP_DISTANCE = 10 * (window.devicePixelRatio ?? 1);
 
 type Pointer = {
 	state: PointerState,
@@ -66,6 +63,7 @@ export class FullscreenGestureHandler extends AGestureHandler {
 			} else {
 				// Detected double tap
 				this.reset();
+
 				return true;
 			}
 		}
@@ -73,7 +71,7 @@ export class FullscreenGestureHandler extends AGestureHandler {
 		return false;
 	}
 
-	detectGesture(pointers: PointerState[], camera: Camera): boolean {
+	detectGesture(pointers: PointerState[], _: Camera): boolean {
 		if (pointers.length === 0) {
 			return this.handlePointerUp();
 		} else if (pointers.length === 1) {
@@ -85,12 +83,12 @@ export class FullscreenGestureHandler extends AGestureHandler {
 		return false;
 	}
 
-	apply(pointers: PointerState[], camera: Camera) {
+	apply(_pointers: PointerState[], _camera: Camera) {
 		FullscreenUtils.toggle();
 	}
 
-	update(deltaTime: number, pointers: PointerState[], camera: Camera) {
-
+	update(_deltaTime: number, _pointers: PointerState[], _camera: Camera) {
+		// Ignore
 	}
 
 }

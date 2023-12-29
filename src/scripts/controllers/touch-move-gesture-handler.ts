@@ -1,8 +1,7 @@
 import { AGestureHandler } from "../types/agesture-handler";
 import { Camera } from "../types/camera";
 import { PointerState } from "../types/pointer-state";
-import { Vector, VectorMath } from "../types/vector";
-import { Log } from "../utils/log";
+import { Vector } from "../types/vector";
 import { Optional } from "./../types/optional";
 
 const speed = 1.0;
@@ -34,7 +33,7 @@ export class MoveGestureHandler extends AGestureHandler {
 		}
 	}
 
-	apply(pointers: PointerState[], camera: Camera) {
+	apply(_pointers: PointerState[], _camera: Camera) {
 		this.lastPointer = null;
 		this.velocity.x = 0;
 		this.velocity.y = 0;

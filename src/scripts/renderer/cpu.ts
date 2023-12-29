@@ -2,7 +2,7 @@
 import { CanvasContextType } from "../types/canvas-context-type";
 import { IRenderer } from "../types/irenderer";
 import { Color } from "../utils/color";
-import { gatherStats, measure, measureOverTime } from "../decorators/measure";
+import { measure, measureOverTime } from "../decorators/measure";
 import { Camera } from "../types/camera";
 import { CanvasRenderingContext } from "../types/canvas-rendering-context";
 import { Log } from "../utils/log";
@@ -96,7 +96,7 @@ export class FractalCPU implements IRenderer {
 	}
 
 	@measure("CPU-JS-DESTROY")
-	async destroy(ctx: CanvasRenderingContext) {
+	async destroy(_ctx: CanvasRenderingContext) {
 		Log.info("FractalCPU", "Destroying...");
 		this.imageData = null;
 		this.buffer = null;

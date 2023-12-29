@@ -167,7 +167,7 @@ export class DesktopCameraController implements ICameraController {
 		this.onMouseMove(event);
 
 		// In some browsers, when using trackpads the ctrlKey is set to true when scrolling
-		let delta = this.normalizeWheelDelta(event);
+		const delta = this.normalizeWheelDelta(event);
 		if (event.ctrlKey) {
 			// Reset mouse coordinates
 			this.wheelDelta = delta.y;

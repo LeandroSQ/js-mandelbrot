@@ -1,4 +1,4 @@
-import { Optional } from './../types/optional';
+import { Optional } from "./../types/optional";
 import { Log } from "./log";
 
 export abstract class FullscreenUtils {
@@ -15,6 +15,7 @@ export abstract class FullscreenUtils {
 
 			if (!fullscreenEnabled) {
 				Log.error("FullscreenUtils", "Fullscreen is not enabled");
+				
 				return;
 			}
 
@@ -34,6 +35,7 @@ export abstract class FullscreenUtils {
 
 	public static isFullscreen(): boolean {
 		const fullscreenElement = window.getPrefixedProperty<Optional<HTMLElement>>(document, "fullscreenElement", true);
+		
 		return fullscreenElement !== null;
 	}
 
