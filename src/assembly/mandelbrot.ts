@@ -16,7 +16,7 @@ export const offset = __heap_base;
 @inline
 function calculateColor(mandelbrot: float, pixelOffset: usize, iteration: i32, maxIterations: i32): void {
 	// Calculate the color in HSL
-	const hue: f32 = <f32>mandelbrot / <f32>maxIterations * 255.0;
+	const hue: f32 = (<f32>mandelbrot / <f32>maxIterations) * 360.0;
 	const saturation: f32 = 1.0;
 	const lightness: f32 = iteration == maxIterations ? 0.0 : 0.5;
 

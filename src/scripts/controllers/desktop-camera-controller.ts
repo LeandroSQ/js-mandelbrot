@@ -24,7 +24,7 @@ export class DesktopCameraController implements ICameraController {
 	constructor(private camera: Camera) { }
 
 	attachHooks(element: HTMLElement) {
-		document.addEventListener("keyup", this.onKeyUp.bind(this));
+		element.addEventListener("keyup", this.onKeyUp.bind(this));
 		element.addEventListener("mousedown", this.onMouseDown.bind(this));
 		element.addEventListener("mousemove", this.onMouseMove.bind(this));
 		element.addEventListener("mouseup", this.onMouseUp.bind(this));
@@ -126,7 +126,7 @@ export class DesktopCameraController implements ICameraController {
 	private onMouseMove(event: MouseEvent) {
 		if (!event.target) return;
 
-		event.preventDefault();
+		// event.preventDefault();
 
 		const dpi = window.devicePixelRatio ?? 1;
 		const x = event.layerX ?? (event.clientX ?? event.offsetX - event.target.offsetLeft);

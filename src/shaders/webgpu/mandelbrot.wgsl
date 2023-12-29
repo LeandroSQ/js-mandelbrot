@@ -88,7 +88,7 @@ fn fragmentMain(input: VertexOutputs) -> @location(0) vec4f {
 	// Heatmap?
 	return hslToRgba(
 		vec3f(
-			temp / complexPlane.maxIterations * 255.0,
+			(temp / complexPlane.maxIterations) * 360.0,
 			1.0,
 			select(0.5, 0.0, iterations == i32(complexPlane.maxIterations))
 		)

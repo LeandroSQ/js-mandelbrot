@@ -7,6 +7,7 @@ declare global {
 		_instance: Main;
 		addLoadEventListener: (listener: () => void) => void;
 		isMobile: () => boolean;
+		getPrefixedProperty<T>(source: any, property: string | Array<string>, required: boolean | undefined): T;
 	}
 
 	interface HTMLCanvasElement {
@@ -19,6 +20,7 @@ declare global {
 		toRadians: (degrees: number) => number;
 		maximumCommonDivisor: (a: number, b: number) => number;
 		prettifyElapsedTime: (ms: number) => string;
+		prettifySize: (bytes: number) => string;
 	}
 
 	interface PromiseConstructor {
@@ -66,6 +68,31 @@ window.isMobile = function () {
 	return window.matchMedia("(any-pointer: coarse)").matches;
 };
 
+window.getPrefixedProperty = function(source: any, property: string | Array<string>, required: boolean | undefined = undefined) {
+	if (Array.isArray(property)) {
+		for (const override of property) {
+			if (override in source) {
+				return source[override];
+			}
+		}
+	} else {
+		const prefixes = ["", "webkit", "moz", "ms"];
+		const keys = Object.keys(source).map(x => x.toLowerCase());
+		for (const prefix of prefixes) {
+			let prefixedProperty = prefix;
+
+			if (prefix.length > 0) prefixedProperty += property[0].toUpperCase() + property.substring(1);
+			else prefixedProperty += property;
+
+			if (prefixedProperty in source || keys.includes(prefixedProperty.toLowerCase())) {
+				return source[prefixedProperty];
+			}
+		}
+	}
+
+	if (required !== false) throw new Error(`Property ${property} not found`);
+}
+
 Promise.delay = function(amount) {
 	return new Promise((resolve, _) => {
 		setTimeout(resolve, amount);
@@ -109,6 +136,18 @@ Math.prettifyElapsedTime = function (ms) {
 	if (ms < 60000) return `${toFixed((ms / 1000), 2)}s`;
 	if (ms < 3600000) return `${toFixed((ms / 60000), 2)}m`;
 	else return `${toFixed((ms / 3600000), 2)}h`;
+};
+
+Math.prettifySize = function (bytes) {
+	const toFixed = (value, digits) => {
+		if (value % 1 === 0) return Math.floor(value);
+		else return value.toFixed(digits);
+	};
+
+	if (bytes < 1024) return `${bytes} B`;
+	if (bytes < 1048576) return `${toFixed((bytes / 1024), 2)} KiB`;
+	if (bytes < 1073741824) return `${toFixed((bytes / 1048576), 2)} MiB`;
+	else return `${toFixed((bytes / 1073741824), 2)} GiB`;
 };
 
 HTMLCanvasElement.prototype.screenshot = async function (filename = "download.png") {

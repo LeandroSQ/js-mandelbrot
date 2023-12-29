@@ -73,12 +73,20 @@ void main() {
 	temp = temp / u_complexPlane.maxIterations;
 	gl_FragColor = vec4(temp, temp, temp, 1.0); */
 
-	// Heatmap?
 	gl_FragColor = hslToRgba(
+		vec3(
+			(temp / u_complexPlane.maxIterations) * 360.0,
+			1.0,
+			iterations == int(u_complexPlane.maxIterations) ? 0.0 : 0.5
+		)
+	);
+
+	// Heatmap?
+	/* gl_FragColor = hslToRgba(
 		vec3(
 			temp / u_complexPlane.maxIterations * 255.0,
 			1.0,
 			iterations == int(u_complexPlane.maxIterations) ? 0.0 : 0.5
 		)
-	);
+	); */
 }
