@@ -1,0 +1,51 @@
+footer {
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	place-content: center;
+	place-items: center;
+	pointer-events: all;
+
+	margin: 1em;
+	margin-top: 0;
+
+	button {
+		background-color: var(--button-background);
+		border: none;
+		color: var(--button-foreground);
+		cursor: pointer;
+		font-size: 0.85em;
+		font-weight: 600;
+		margin: 0.25em;
+		padding: 0.25em 0.75em;
+		text-transform: uppercase;
+		transition: color 250ms ease;
+		border-radius: 0.25em;
+		height: 100%;
+		transition: background-color 150ms ease-in-out, transform 150ms ease-in-out;
+
+		&:hover, &.active {
+			background-color: var(--accent);
+		}
+
+		&:focus {
+			outline: none;
+		}
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+
+		&:active, &.active {
+			transform: scale(0.95) translateY(0.05em);
+		}
+	}
+
+}
+
+@media (max-width: 350px) {
+	footer {
+		flex-wrap: wrap;
+	}
+}
