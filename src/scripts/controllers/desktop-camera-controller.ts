@@ -131,8 +131,8 @@ export class DesktopCameraController implements ICameraController {
 	private onMouseMove(event: MouseEvent) {
 		if (!event.target) return;
 		if (this.isTrackPadPanning) return;
-
-		// event.preventDefault();
+	
+		event.stopPropagation();
 
 		const dpi = window.devicePixelRatio ?? 1;
 		const x = event.layerX ?? (event.clientX ?? event.offsetX - event.target.offsetLeft);
