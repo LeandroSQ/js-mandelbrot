@@ -50,9 +50,10 @@ export class DesktopCameraController implements ICameraController {
 		const speed = 1.0;
 		const inertia = 45;
 		const friction = 0.925;
+		const min = -1.25;
+		const max = 0.65;
 
 		if (this.wasMouseDown || this.isTrackPadPanning) {
-			const dpi = window.devicePixelRatio ?? 1;
 			const delta = {
 				x: this.mouseDelta.x * speed * this.camera.fractalSize / this.camera.viewport.width / this.camera.zoom,
 				y: this.mouseDelta.y * speed * this.camera.fractalSize / this.camera.viewport.height / this.camera.zoom
@@ -61,7 +62,9 @@ export class DesktopCameraController implements ICameraController {
 			if (this.isMouseDown || this.isTrackPadPanning) {
 				this.camera.position.x -= delta.x;
 				this.camera.position.y -= delta.y;
-			} else {
+			}
+
+			if (!this.isMouseDown || this.isTrackPadPanning) {
 				this.panVelocity.x = delta.x * inertia;
 				this.panVelocity.y = delta.y * inertia;
 			}
@@ -71,6 +74,9 @@ export class DesktopCameraController implements ICameraController {
 			this.panVelocity.x *= friction;
 			this.panVelocity.y *= friction;
 		}
+
+		this.camera.position.x = Math.clamp(this.camera.position.x, min, max);
+		this.camera.position.y = Math.clamp(this.camera.position.y, min, max);
 	}
 
 	private zoomCamera(deltaTime: number) {
@@ -106,7 +112,6 @@ export class DesktopCameraController implements ICameraController {
 
 	// #region Event Handlers
 	private onKeyUp(event: KeyboardEvent) {
-		console.log(event);
 		if (event.key === "F11") {
 			event.preventDefault();
 
@@ -125,6 +130,7 @@ export class DesktopCameraController implements ICameraController {
 
 	private onMouseMove(event: MouseEvent) {
 		if (!event.target) return;
+		if (this.isTrackPadPanning) return;
 
 		// event.preventDefault();
 
@@ -157,24 +163,24 @@ export class DesktopCameraController implements ICameraController {
 			y *= 24;
 		}
 
-		x = Math.clamp(x, -24, 24);
-		y = Math.clamp(y, -24, 24);
-
 		return { x, y };
 	}
 
 	private onMouseWheel(event: WheelEvent) {
 		event.preventDefault();
 
+		this.onMouseMove(event);
+
 		// In some browsers, when using trackpads the ctrlKey is set to true when scrolling
 		let delta = this.normalizeWheelDelta(event);
 		if (event.ctrlKey) {
 			// Reset mouse coordinates
-			this.onMouseMove(event);
 			this.wheelDelta = delta.y;
 		} else {
 			// Use trackpad panning
 			this.isTrackPadPanning = true;
+			this.lastMouse = { x: this.mouse.x, y: this.mouse.y };// Since we updated the mouse position, reset it so the only moved pixels considered are the scroll delta
+
 			if (event.shiftKey && delta.x === 0) {
 				this.mouse.x -= delta.y;
 			} else {
