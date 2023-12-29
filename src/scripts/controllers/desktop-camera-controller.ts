@@ -1,0 +1,170 @@
+import { Camera } from "../types/camera";
+import { ICameraController } from "../types/icamera-controller";
+import { Vector } from "../types/vector";
+
+export class DesktopCameraController implements ICameraController {
+
+	private panVelocity = { x: 0, y: 0 };
+	private zoomVelocity = 0;
+
+	private mouse: Vector = { x: 0, y: 0 };
+	private lastMouse: Vector = { x: 0, y: 0 };
+	private get mouseDelta(): Vector {
+		return { x: this.mouse.x - this.lastMouse.x, y: this.mouse.y - this.lastMouse.y };
+	}
+
+	private isTrackPadPanning = false;
+	private isMouseDown = false;
+	private wasMouseDown = false;
+
+	private wheelDelta = 0;
+	private trackPadDelta: Vector = { x: 0, y: 0 };
+
+	constructor(private camera: Camera) { }
+
+	attachHooks(element: HTMLElement) {
+		element.addEventListener("mousedown", this.onMouseDown.bind(this));
+		element.addEventListener("mousemove", this.onMouseMove.bind(this));
+		element.addEventListener("mouseup", this.onMouseUp.bind(this));
+		element.addEventListener("mouseleave", this.onMouseUp.bind(this));
+		element.addEventListener("mouseout", this.onMouseUp.bind(this));
+		element.addEventListener("wheel", this.onMouseWheel.bind(this), { passive: false });
+	}
+
+	update(deltaTime: number) {
+		// Update camera
+		this.panCamera(deltaTime);
+		this.zoomCamera(deltaTime);
+
+		// Reset variables
+		this.isTrackPadPanning = false;
+		this.wasMouseDown = this.isMouseDown;
+		this.lastMouse.x = this.mouse.x;
+		this.lastMouse.y = this.mouse.y;
+		this.wheelDelta = 0;
+	}
+
+	private panCamera(deltaTime: number) {
+		const speed = 1.0;
+		const inertia = 45;
+		const friction = 0.925;
+
+		if (this.wasMouseDown || this.isTrackPadPanning) {
+			const dpi = window.devicePixelRatio ?? 1;
+			const delta = {
+				x: this.mouseDelta.x * speed * this.camera.fractalSize / this.camera.viewport.width / this.camera.zoom * dpi,
+				y: this.mouseDelta.y * speed * this.camera.fractalSize / this.camera.viewport.height / this.camera.zoom * dpi
+			};
+
+			if (this.isMouseDown || this.isTrackPadPanning) {
+				this.camera.position.x -= delta.x;
+				this.camera.position.y -= delta.y;
+			} else {
+				this.panVelocity.x = delta.x * inertia;
+				this.panVelocity.y = delta.y * inertia;
+			}
+		} else {
+			this.camera.position.x -= this.panVelocity.x * deltaTime;
+			this.camera.position.y -= this.panVelocity.y * deltaTime;
+			this.panVelocity.x *= friction;
+			this.panVelocity.y *= friction;
+		}
+	}
+
+	private zoomCamera(deltaTime: number) {
+		const speed = 0.005;
+		const friction = 0.9;
+		const minZoom = 0.5;
+		const maxZoom = 318226.2513349596;
+		const defaultIterations = 80;
+		const minIterations = 1;
+		const maxIterations = 20024;
+
+		if (this.wheelDelta !== 0) {
+			this.zoomVelocity += this.wheelDelta * speed;
+		}
+
+		const z = 1.0 - (this.zoomVelocity * deltaTime + (this.wheelDelta * speed));
+		const oldZoom = this.camera.zoom;
+		this.camera.zoom *= z;
+		this.camera.zoom = Math.clamp(this.camera.zoom, minZoom, maxZoom);
+
+		if (this.camera.zoom !== oldZoom) {
+			// Adjust this.camera.position to keep the mouse position constant
+			this.camera.position.x += (this.mouse.x / this.camera.viewport.width - 0.5) * this.camera.fractalSize / oldZoom * (1.0 - 1.0 / z);
+			this.camera.position.y += (this.mouse.y / this.camera.viewport.height - 0.5) * this.camera.fractalSize / oldZoom * (1.0 - 1.0 / z);
+
+			// Adjust the iteration count to keep the fractal constant
+			this.camera.maxIterations = Math.floor(defaultIterations + this.camera.zoom * 0.2);
+			this.camera.maxIterations = Math.clamp(this.camera.maxIterations, minIterations, maxIterations);
+		}
+
+		this.zoomVelocity *= friction;
+	}
+
+	// #region Event Handlers
+	private onMouseDown(event: MouseEvent) {
+		if (event.button === 0 || event.button === 1) { // Left-click or middle-click
+			this.isMouseDown = true;
+		}
+
+		// Update mouse position
+		this.onMouseMove(event);
+	}
+
+	private onMouseMove(event: MouseEvent) {
+		if (!event.target) return;
+
+		const x = event.layerX ?? (event.clientX ?? event.offsetX - event.target.offsetLeft);
+		const y = event.layerY ?? (event.clientY ?? event.offsetY - event.target.offsetTop);
+
+		this.mouse.x = x;
+		this.mouse.y = y;
+	}
+
+	private onMouseUp(event: MouseEvent) {
+		if (event.button === 0 || event.button === 1) { // Left-click or middle-click
+			this.isMouseDown = false;
+		}
+
+		// Update mouse position
+		this.onMouseMove(event);
+	}
+
+	private normalizeWheelDelta(event: WheelEvent): Vector {
+		let x = event.deltaX;
+		let y = event.deltaY;
+
+		if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+			x *= 8;
+			y *= 8;
+		} else if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+			x *= 24;
+			y *= 24;
+		}
+
+		x = Math.clamp(x, -24, 24);
+		y = Math.clamp(y, -24, 24);
+
+		return { x, y };
+	}
+
+	private onMouseWheel(event: WheelEvent) {
+		event.preventDefault();
+
+		// In some browsers, when using trackpads the ctrlKey is set to true when scrolling
+		let delta = this.normalizeWheelDelta(event);
+		if (event.ctrlKey) {
+			// Reset mouse coordinates
+			this.onMouseMove(event);
+			this.wheelDelta = delta.y;
+		} else {
+			// Use trackpad panning
+			this.isTrackPadPanning = true;
+			this.mouse.x -= delta.x;
+			this.mouse.y -= delta.y;
+		}
+	}
+	// #endregion
+
+}
