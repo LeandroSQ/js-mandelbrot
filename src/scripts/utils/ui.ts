@@ -73,7 +73,7 @@ export abstract class UIUtils {
 	public static transition(action: () => Promise<void>): Promise<void> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const startViewTransition = window.getPrefixedProperty<Optional<(action) => void>>(document, "startViewTransition", false);
+				const startViewTransition = window.getPrefixedProperty<((action) => void) | undefined>(document, "startViewTransition", false);
 
 				const wrapper = document.getElementById("wrapper");
 				if (wrapper === null) return reject(new Error("Wrapper not found"));
@@ -81,7 +81,7 @@ export abstract class UIUtils {
 				wrapper.classList.add("loading");
 				this.setButtonsEnabled(false);
 
-				if (startViewTransition !== null) {
+				if (startViewTransition !== undefined) {
 					startViewTransition.call(document, async () => {
 						try {
 							await action();
